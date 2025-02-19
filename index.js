@@ -1,12 +1,12 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const cors = require('cors');
-require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const port = process.env.PORT || 3000
+const cors = require("cors");
+require("dotenv").config();
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const port = process.env.PORT || 3000;
 
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_admin}:${process.env.DB_pass}@cluster0.e6udf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -16,37 +16,46 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
+await client.connect();
 
 async function run() {
-    try {
+  try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    const taskCollection = client.db('taskManger').collection('taskList')
-    
-    // get api
-    app.get("tasks", async (req, res) =>{
-
-    })
-
-    // post api
-    app.post("tasks", async (req, res) => {
-
-    })
-
-    // put api
-    app.put('tasks/:id', async (req, res) =>{
-
-    })
-
-    // delete api
-    app.delete("tasks/:id", async(req, res) =>{
-
-    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
+    const taskCollection = client.db("taskManger").collection("taskList");
+
+    // get api
+    app.get("/tasks", async (req, res) => {});
+
+    // post api
+    app.post("/tasks", async (req, res) => {
+      const task = req.body;
+      const result = await taskCollection.insertOne(task);
+    });
+
+    // put api
+    app.put("/tasks/:id", async (req, res) => {
+      const { id } = req.params;
+      const updatedTask = req.body;
+      const result = await taskCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updatedTask }
+      );
+      res.send(result);
+    });
+
+    // delete api
+    app.delete("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await taskCollection.deleteOne({ _id: new ObjectId(id) });
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
@@ -54,7 +63,6 @@ async function run() {
 }
 run().catch(console.dir);
 
-
-app.listen(port,() =>{
-    console.log("Port is running at", port)
-    })
+app.listen(port, () => {
+  console.log("Port is running at", port);
+});
