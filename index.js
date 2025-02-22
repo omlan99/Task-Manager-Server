@@ -51,9 +51,6 @@ async function run() {
       });
     });
 
-    app.get("/", async (req,res) => {
-      res.send("data is coming ")
-    })
     app.get("/users/:email", async (req, res) => {
       
         const email = req.params.email;
