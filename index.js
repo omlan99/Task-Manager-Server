@@ -51,12 +51,7 @@ async function run() {
       });
     });
 
-    app.get("/users/:email", async (req, res) => {
-      
-        const email = req.params.email;
-        const user = await userCollection.findOne({ email });
-        res.send(user);
-    })
+  
     app.post("/users", async (req, res) =>{
       const user = req.body
       const existingUser = await userCollection.findOne({ email: user.email });
@@ -69,7 +64,7 @@ async function run() {
     // GET all tasks
     app.get("/tasks", async (req, res) => {
       try {
-        const { email } = req.query; // Expecting ?email=user@example.com
+        const { email } = req.query; 
         const query = email ? { email } : {};
         const tasks = await taskCollection.find(query).sort({ order: 1 }).toArray();
         res.json(tasks);
